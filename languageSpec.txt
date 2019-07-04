@@ -1,0 +1,38 @@
+e ::=
+    | b | n | x | c | s
+    | break
+    | e1 + e2 | e1 * e2 | e1 / e2 | e1 % e2
+    | x := e
+    | e1 == e2 | e1 != e2
+    | e1 < e2 | e1 > e2 | e1 <= e2 | e1 >= e2
+    | e1 || e2 | e1 && e2 | e1 ^ e2
+    | !e
+    | -e
+
+s ::=
+    | e;
+    | loop e { s }
+    | if e { s } | if e { s1 } else { s2 }
+    | return e;
+
+v ::= b | n | c | s
+
+b ::= true | false
+
+s ::= "c*"
+
+input????
+statements vs expressions?
+arrays
+functions
+entry point: main()
+
+
+builtins:
+    print_char()
+    print_int()
+    print_string()
+    read_char()
+    read_int()
+    read_line()
+    length() //arrays or strings

@@ -1,0 +1,6 @@
+-Type checker
+-allocate constant arrays and strings on the heap and do all computations there
+
+order:
+    1) main, print, integers
+        example: function main(){print(5); print(8);}
