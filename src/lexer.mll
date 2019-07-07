@@ -102,6 +102,17 @@ let int_literal =
           { new_line lexbuf; token lexbuf }
     | int_literal
           { INT (Lexing.lexeme lexbuf) }
+    | "'" newline "'"
+      { update_loc lexbuf None 1 false 1;
+        CHAR (Lexing.lexeme_char lexbuf 1) }
+    | "'" [^ '\\' '\'' '\010' '\013'] "'"
+      { CHAR(Lexing.lexeme_char lexbuf 1) }
+    | "'\\" ['\\' '\'' '"' 'n' 't' 'b' 'r' ' '] "'"
+      { CHAR(char_for_backslash (Lexing.lexeme_char lexbuf 2)) }
+    | "'\\" ['0'-'9'] ['0'-'9'] ['0'-'9'] "'"
+      { CHAR(char_for_decimal_code lexbuf 2) }
+    | "'\\" 'x' ['0'-'9' 'a'-'f' 'A'-'F'] ['0'-'9' 'a'-'f' 'A'-'F'] "'"
+      { CHAR(char_for_hexadecimal_code lexbuf 3) }
     | "\""
           { reset_string_buffer();
             let string_start = lexbuf.lex_start_p in
@@ -164,6 +175,10 @@ let int_literal =
           { DO }
     | "loop"
           { LOOP }
+    | "return"
+          { RETURN }
+    | "print"
+          { PRINT }
     | "{"
           { LBRACE }
     | "}"

@@ -25,7 +25,7 @@ let has_dups lst =
        COMMA LBRACKET RBRACKET
 %token TRUE FALSE
 %token IF ELSE
-       WHILE DO LOOP BREAK
+       WHILE DO LOOP BREAK RETURN PRINT
 %token FUNCTION
 %token EOF
 
@@ -53,20 +53,20 @@ let has_dups lst =
 (* %nonassoc DOT *)
 (* %nonassoc BEGIN FALSE LPAREN TRUE UNDEFINED *)
 
-%start <Ast.expr> parse_expression
+/* %start <Ast.expr> parse_expression */
 /* %start <Ast.statement> parse_statement */
-%start <Ast.statements> parse_statements
+%start <Ast.program> parse_program
 
 %%
 
 
 
-parse_expression:
+/* parse_expression:
   | e = expr; EOF
-        { e }
+        { e } */
 
-parse_statements:
-    | s = statements; EOF { s }
+parse_program:
+    | fs = functions; EOF { fs }
 
 /* parse_phrase:
 	| e = seq_expr; DOUBLE_SEMI?; EOF
@@ -92,22 +92,23 @@ parse_statements:
   | e = expr; SEMI; s = seq_expr;
         { make_seq e s } */
 
+functions:
+    | fs = list(function) { fs }
+
+function:
+    | FUNCTION; f = ident; LPAREN; args = separated_list(COMMA, ident); RPAREN; LBRACE; s = statements; RBRACE
+        { (f, args, s) }
+
 statements:
     | s = list(statement) { s }
 
 statement:
-    | FUNCTION; f = ident; LPAREN; args = separated_list(COMMA, ident); RPAREN; LBRACE; s = innerStatements; RBRACE
-        { SFunction (f, args, s) }
-
-innerStatements:
-    | s = list(innerStatement) { s }
-
-innerStatement:
     | e = expr; SEMI; { SExpr e }
-    | LOOP; e = expr; LBRACE; s = innerStatements; RBRACE { SLoop (e, s) }
+    | LOOP; e = expr; LBRACE; s = statements; RBRACE { SLoop (e, s) }
     | RETURN; e = expr; { SReturn e }
-    | IF; LPAREN; e = expr; RPAREN; LBRACE; s = innerStatements; RBRACE { SIf (e, s) }
-    | IF; LPAREN; e = expr; RPAREN; LBRACE; s1 = innerStatements; RBRACE; ELSE; LBRACE; s2 = innerStatements; RBRACE { SIf (e, s1, s2) }
+    | PRINT; e = expr; { SPrint e }
+    | IF; LPAREN; e = expr; RPAREN; LBRACE; s = statements; RBRACE { SIf (e, s) }
+    | IF; LPAREN; e = expr; RPAREN; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE { SIf (e, s1, s2) }
 
 expr:
   | e = simple_expr

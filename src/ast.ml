@@ -33,12 +33,16 @@ type expr =
 type statement =
   | SLoop of expr * statements
   | SExpr of expr
-  | SFunction of id * id list * statements
   | SIf of expr * statement
   | SIfElse of expr * statement * statement
   | SReturn of expr
+  | SPrint of expr
 
 and statements = statement list
+
+type ffunction = id * id list * statements
+
+type program = ffunction list
 
 let print_uop u = match u with
   | UopMinus -> print_string "-"
