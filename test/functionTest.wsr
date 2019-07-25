@@ -1,0 +1,9 @@
+function main(){
+    print_int 1;
+    doSomething();
+    print_int 3;
+}
+
+function doSomething(){
+    print_int 2;
+}
