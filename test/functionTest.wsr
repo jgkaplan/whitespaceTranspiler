@@ -1,9 +1,15 @@
 function main(){
     print_int 1;
-    doSomething();
-    print_int 3;
+    y := 6;
+    x := doSomething();
+    print_int 4;
+    print_int x;
+    print_int y;
 }
 
 function doSomething(){
-    print_int 2;
+    x := 2;
+    print_int x;
+    print_int 3;
+    return 5;
 }

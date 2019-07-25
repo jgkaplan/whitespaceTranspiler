@@ -56,9 +56,9 @@ let rec compile_expression functionMap varmap = function
       match IdMap.find_opt id functionMap with
       | None -> raise (UndefinedFunction id)
       | Some l ->
-        [Stack (Push (false, "0")); Heap Retrieve; Stack Duplicate]
+        [Stack (Push (false, "0")); Stack Duplicate; Heap Retrieve]
         @ [Stack (Push (false, !varmap |> IdMap.cardinal |> (+) 1 |> string_of_int ))]
-        @ [Arithmetic Add; Stack Duplicate; Stack (Copy "2"); Heap Store; Heap Store]
+        @ [Arithmetic Add; Stack Duplicate; Stack (Copy "2"); Heap Retrieve; Heap Store; Heap Store]
           @ List.flatten (List.map (compile_expression functionMap varmap) es) @ [Flow (Call l)]
     end
   | EBop (e1, b, e2) -> begin
