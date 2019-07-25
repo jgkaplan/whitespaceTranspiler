@@ -1,6 +1,7 @@
 -Type checker
 -allocate constant arrays and strings on the heap and do all computations there
 -builtin functions
+-check that correct number of arguments are passed to function on application
 -make all functions return things (add return as AST not as WhitespaceAst)
 -add support for preprocessor
 

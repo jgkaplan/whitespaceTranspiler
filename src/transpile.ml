@@ -171,11 +171,21 @@ let compile_function functionMap (name, args, statements) =
   let label = match IdMap.find_opt name functionMap with
     | None -> raise (UndefinedFunction name)
     | Some l -> l
-  in let compiled_s = compile_statements functionMap (ref IdMap.empty) statements
-  in let forceReturn = match List.rev compiled_s with
-      | Flow Return :: xs -> compiled_s
-      | xs -> List.rev (Flow Return :: xs)
-  in (Flow (Mark label)) :: forceReturn
+  in let varmap = ref IdMap.empty
+  in let () = List.iteri (fun i arg -> varmap := IdMap.add arg (string_of_int (i + 1)) !varmap) args
+  in let returnFix = match List.rev statements with
+      | SReturn _ :: _ -> statements
+      | xs -> List.rev (SReturn (EInteger (false, "0")) :: xs)
+  in let compiled_s = compile_statements functionMap varmap returnFix
+  in (Flow (Mark label))
+     :: List.flatten ((List.map
+           (fun arg ->
+              [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, IdMap.find arg !varmap)); Arithmetic Add; Stack Swap; Heap Store]
+           ) (List.rev args)
+        ))
+     @ compiled_s
+
+
 
 let compile_program fs =
   let functionMap = List.fold_left

@@ -1,5 +1,5 @@
 function main(){
-    print_int fib(5);
+    print_int fib(2);
 }
 
 function fib(n){
