@@ -126,32 +126,12 @@ expr:
 /*
   | e1 = simple_expr; LBRACKET e2 = expr; RBRACKET; UPDATE; e3 = expr
         { make_binop BopUpdate (make_get_field e1 e2) e3 }
-  | e1 = expr; AND; e2 = expr
-		{ make_and e1 e2 }
-  | e1 = expr; OR; e2 = expr
-		{ make_or e1 e2 }
-    | e1 = expr; XOR; e2 = expr
-    		{ make_xor e1 e2 }
-  | IF; e1 = seq_expr; THEN; e2 = expr; ELSE; e3 = expr
-        { make_if e1 e2 e3 }
-  | IF; e1 = seq_expr; THEN; e2 = expr
-        { make_if_partial e1 e2 }
-  | LET; x = ID; EQUAL; e1 = expr; IN; e2 = seq_expr
-		{ make_let x e1 e2 }
-  | LET; REC; f = ID; LPAREN; xs = nonempty_list(ident); RPAREN; EQUAL; e1 = expr; IN; e2 = seq_expr
-		{ make_let_rec f xs e1 e2 }
   | TRY; e1 = seq_expr; CATCH; x = ID; HANDLE; e2 = seq_expr
         { make_try e1 x e2 }
   | TRY; e1 = seq_expr; CATCH; x = ID; HANDLE; e2 = seq_expr; FINALLY; e3 = seq_expr
         { make_try_finally e1 x e2 e3 }
   | THROW; e = simple_expr
         { make_throw e}
-  | REF; e = simple_expr
-        { make_ref e }
-  | FUN; LPAREN; xs = nonempty_list(ident); RPAREN; ARROW; e = seq_expr
-        { if has_dups xs
-          then $syntaxerror (* duplicate argument names *)
-          else make_fun xs e }
   | WHILE; e1 = seq_expr; DO; e2 = seq_expr; DONE
         { make_while e1 e2 }
   | DELETE e1 = simple_expr; LBRACKET; e2 = expr; RBRACKET
@@ -208,4 +188,7 @@ ident:
   | GEQ { BopGeq }
   | EQUAL { BopEq }
   | NOTEQUAL { BopNeq }
+  | AND {BopAnd}
+  | OR {BopOr}
+  | XOR {BopXor}
   ;

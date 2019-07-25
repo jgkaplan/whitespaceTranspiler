@@ -1,0 +1,7 @@
+function main(){
+    x := 2;
+    y := 3;
+    print_int x + y;
+    z := x + y;
+    print_int z;
+}

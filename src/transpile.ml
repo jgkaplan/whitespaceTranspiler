@@ -48,14 +48,18 @@ let rec compile_expression functionMap varmap = function
           | Some l -> l (* update it *)
         end
       in
-      [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add]
-      @ ce
-      @ [Heap Store; Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add; Heap Retrieve]
+      ce
+      @ [Stack Duplicate; Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add]
+      @ [Stack Swap; Heap Store]
     end
   | EApp (id, es) -> begin
       match IdMap.find_opt id functionMap with
       | None -> raise (UndefinedFunction id)
-      | Some l -> List.flatten (List.map (compile_expression functionMap varmap) es) @ [Flow (Call l)]
+      | Some l ->
+        [Stack (Push (false, "0")); Heap Retrieve; Stack Duplicate]
+        @ [Stack (Push (false, !varmap |> IdMap.cardinal |> (+) 1 |> string_of_int ))]
+        @ [Arithmetic Add; Stack Duplicate; Stack (Copy "2"); Heap Store; Heap Store]
+          @ List.flatten (List.map (compile_expression functionMap varmap) es) @ [Flow (Call l)]
     end
   | EBop (e1, b, e2) -> begin
       match b with
@@ -131,7 +135,10 @@ let rec compile_statement functionMap varmap = function
   | SExpr e -> (compile_expression functionMap varmap e) @ [Stack Discard]
   | SPrintC e -> (compile_expression functionMap varmap e) @ [IO OutputC]
   | SPrintI e -> (compile_expression functionMap varmap e) @ [IO OutputI]
-  | SReturn e -> (compile_expression functionMap varmap e) @ [Flow Return]
+  | SReturn e ->
+    (compile_expression functionMap varmap e)
+    @ [Stack (Push (false, "0")); Heap Retrieve; Heap Retrieve; Stack (Push (false, "0")); Stack Swap; Heap Store]
+    @ [Flow Return]
   | SIf (e, s) -> begin
       let l = next_label ()
       in (compile_expression functionMap varmap e) @ [Flow (JumpZero l)] @ (compile_statements functionMap varmap s) @ [Flow (Mark l)]
@@ -159,7 +166,7 @@ and compile_statements functionMap oldVarmap statements =
       acc @ (compile_statement functionMap varmap s)
     ) [] statements
 
-(* TODO force functions to return a value. TODO allow for recursion in main function *)
+(* TODO force functions to return a value *)
 let compile_function functionMap (name, args, statements) =
   let label = match IdMap.find_opt name functionMap with
     | None -> raise (UndefinedFunction name)
@@ -168,16 +175,19 @@ let compile_function functionMap (name, args, statements) =
   in let forceReturn = match List.rev compiled_s with
       | Flow Return :: xs -> compiled_s
       | xs -> List.rev (Flow Return :: xs)
-  in let mainFix = List.map (fun s -> begin
-        match s with
-        | Flow Return -> if name = "main" then Flow Terminate else Flow Return
-        | x -> x
-      end) forceReturn
-  in (Flow (Mark label)) :: mainFix
+  in (Flow (Mark label)) :: forceReturn
 
 let compile_program fs =
   let functionMap = List.fold_left
       (fun acc (name, _, _) ->
          IdMap.add name (if name = "main" then "0" else next_label ()) acc) IdMap.empty fs
 in let compiled = List.map (compile_function functionMap) fs
-in Stack (Push (false, "1")) :: Stack (Push (false, "0")) :: Heap Store :: (Flow (Call "0")) :: (List.flatten compiled)
+in Stack (Push (false, "0"))
+   :: Stack (Push (false, "1"))
+   :: Stack Duplicate
+   :: Stack Duplicate
+   :: Heap Store
+   :: Heap Store
+   :: (Flow (Call "0"))
+   :: (Flow Terminate)
+   :: (List.flatten compiled)
