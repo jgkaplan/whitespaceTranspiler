@@ -2,17 +2,8 @@ type token = Space | Tab | Newline
 
 type label = string
 
-type program = expression list
-
-type expression =
-  | Stack of stackE
-  | Arithmetic of arithE
-  | Heap of heapE
-  | Flow of flowE
-  | IO of ioE
-
 type stackE =
-  | Push of string (* Push int to top of stack *)
+  | Push of bool * string (* Push int to top of stack *) (* if bool is false, int is positive, else negative*)
   | Duplicate (* Duplicate top item of stack *)
   | Copy of string (* Copy nth item to top of stack *)
   | Swap (* Swap top two items *)
@@ -45,6 +36,14 @@ type ioE =
   | InputC
   | InputI
 
+type expression =
+  | Stack of stackE
+  | Arithmetic of arithE
+  | Heap of heapE
+  | Flow of flowE
+  | IO of ioE
+
+type program = expression list
       (*
 https://stackoverflow.com/questions/29957418/how-to-convert-char-list-to-string-in-ocaml
 
@@ -62,7 +61,7 @@ https://stackoverflow.com/questions/29957418/how-to-convert-char-list-to-string-
 
       return new_s
 *)
-let strIntToTokens : string -> token list =
+let strIntToTokens : bool * string -> token list =
   let isOdd s =
     match String.get s (String.length s - 1) with
     | '1' | '3' | '5' | '7' | '9' -> true
@@ -81,7 +80,13 @@ let strIntToTokens : string -> token list =
       in divByTwo (String.sub s 1 ((String.length s)-1)) new_s' (if ch = '1' || ch = '3' || ch = '5' || ch = '7' || ch = '9' then 5 else 0)
   in let rec toBin s acc =
     if s = "0" then acc else toBin (divByTwo s [] 0) ((if isOdd s then Tab else Space) :: acc)
-  in fun s -> if s = "0" then [Space; Space; Newline] else Space :: (toBin s [Newline])
+  in fun (b,s) ->
+    if s = "0"
+    then [Space; Space; Newline]
+    else
+      (if b
+      then Tab
+      else Space) :: (toBin s [Newline])
 
 
 let intToTokens : int -> token list = fun n ->
@@ -95,12 +100,12 @@ let intToTokens : int -> token list = fun n ->
   in first :: (intToBin (abs n) [Newline])
 
 let stackToTokens = function
-  | Push i -> Space :: (strIntToTokens i)
+  | Push (b,i) -> Space :: (strIntToTokens (b,i))
   | Duplicate -> [Newline; Space]
-  | Copy i -> Tab :: Space :: (strIntToTokens i)
+  | Copy i -> Tab :: Space :: (strIntToTokens (false,i))
   | Swap -> [Newline; Tab]
   | Discard -> [Newline; Newline]
-  | Slide i -> Tab :: Newline :: (strIntToTokens i)
+  | Slide i -> Tab :: Newline :: (strIntToTokens (false,i))
 
 let arithToTokens = function
   | Add -> [Space; Space]
@@ -114,11 +119,11 @@ let heapToTokens = function
   | Retrieve -> [Tab]
 
 let flowToTokens = function
-  | Mark l -> Space :: Space :: (strIntToTokens l)
-  | Call l -> Space :: Tab :: (strIntToTokens l)
-  | Jump l -> Space :: Newline :: (strIntToTokens l)
-  | JumpZero l -> Tab :: Space :: (strIntToTokens l)
-  | JumpNeg l -> Tab :: Tab :: (strIntToTokens l)
+  | Mark l -> Space :: Space :: (strIntToTokens (false, l))
+  | Call l -> Space :: Tab :: (strIntToTokens (false, l))
+  | Jump l -> Space :: Newline :: (strIntToTokens (false, l))
+  | JumpZero l -> Tab :: Space :: (strIntToTokens (false, l))
+  | JumpNeg l -> Tab :: Tab :: (strIntToTokens (false, l))
   | Return -> [Tab; Newline]
   | Terminate -> [Newline; Newline]
 
@@ -140,6 +145,6 @@ let tokenToString : token -> string = function
   | Tab -> "\t"
   | Newline -> "\n"
 
-let eToString e = e |> toTokens |> map tokenToString |> String.concat ""
+let eToString e = e |> eToTokens |> List.map tokenToString |> String.concat ""
 
-let pToString p = map eToString p |> String.concat ""
+let pToString p = List.map eToString p |> String.concat ""

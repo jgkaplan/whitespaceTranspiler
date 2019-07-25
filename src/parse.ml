@@ -35,11 +35,13 @@ let parse parser_start lexbuf =
     | Parser.Error | Lexer.Error -> parse_error lexbuf
     | Failure s -> unexpected_error s lexbuf
 
-let parse_expr =
-  parse Parser.parse_expression
+(* let parse_expr =
+  parse Parser.parse_expression *)
 
 (* let parse_statement =
   parse Parser.parse_statement *)
-
+(*
 let parse_statements =
-  parse Parser.parse_statements
+  parse Parser.parse_statements *)
+
+let parse_program = parse Parser.parse_program

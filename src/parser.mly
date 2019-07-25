@@ -18,14 +18,14 @@ let has_dups lst =
 %token <string> INT
 %token <string> ID STRING
 %token <char> CHAR
-%token PLUS MINUS TIMES DIV MOD AND OR
+%token PLUS MINUS TIMES DIV MOD AND OR XOR
        LT LEQ GT GEQ EQUAL NOTEQUAL
        NOT
 %token LPAREN RPAREN SEMI ASSIGN LBRACE RBRACE COLON
        COMMA LBRACKET RBRACKET
 %token TRUE FALSE
 %token IF ELSE
-       WHILE DO LOOP BREAK RETURN PRINT
+       WHILE DO LOOP BREAK RETURN PRINTC PRINTI
 %token FUNCTION
 %token EOF
 
@@ -45,6 +45,7 @@ let has_dups lst =
 %right ASSIGN /* UPDATE */
 (* %right ARROW *)
 %right OR
+%right XOR
 %right AND
 %left EQUAL NOTEQUAL /* EQUALEQUAL NOTEQUALEQUAL */ LT LEQ GT GEQ
 %left PLUS MINUS
@@ -93,9 +94,9 @@ parse_program:
         { make_seq e s } */
 
 functions:
-    | fs = list(function) { fs }
+    | fs = list(my_function) { fs }
 
-function:
+my_function:
     | FUNCTION; f = ident; LPAREN; args = separated_list(COMMA, ident); RPAREN; LBRACE; s = statements; RBRACE
         { (f, args, s) }
 
@@ -105,10 +106,11 @@ statements:
 statement:
     | e = expr; SEMI; { SExpr e }
     | LOOP; e = expr; LBRACE; s = statements; RBRACE { SLoop (e, s) }
-    | RETURN; e = expr; { SReturn e }
-    | PRINT; e = expr; { SPrint e }
+    | RETURN; e = expr; SEMI; { SReturn e }
+    | PRINTC; e = expr; SEMI; { SPrintC e }
+    | PRINTI; e = expr; SEMI; { SPrintI e }
     | IF; LPAREN; e = expr; RPAREN; LBRACE; s = statements; RBRACE { SIf (e, s) }
-    | IF; LPAREN; e = expr; RPAREN; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE { SIf (e, s1, s2) }
+    | IF; LPAREN; e = expr; RPAREN; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE { SIfElse (e, s1, s2) }
 
 expr:
   | e = simple_expr
@@ -119,14 +121,17 @@ expr:
         { EUop (uop, e) }
   | v = ident; ASSIGN; e = expr
         { EAssign (v, e) }
-  /* | e1 = expr; bop = binop; e2 = expr
-        { make_binop bop e1 e2 }
+  | e1 = expr; bop = binop; e2 = expr
+        { EBop (e1, bop, e2) }
+/*
   | e1 = simple_expr; LBRACKET e2 = expr; RBRACKET; UPDATE; e3 = expr
         { make_binop BopUpdate (make_get_field e1 e2) e3 }
   | e1 = expr; AND; e2 = expr
 		{ make_and e1 e2 }
   | e1 = expr; OR; e2 = expr
 		{ make_or e1 e2 }
+    | e1 = expr; XOR; e2 = expr
+    		{ make_xor e1 e2 }
   | IF; e1 = seq_expr; THEN; e2 = expr; ELSE; e3 = expr
         { make_if e1 e2 e3 }
   | IF; e1 = seq_expr; THEN; e2 = expr
@@ -161,7 +166,7 @@ simple_expr:
   | LPAREN; e = expr; RPAREN
         { e }
   | s = INT
-		{ EInteger s }
+		{ EInteger (false, s) }
   | c = CHAR
         { EChar c }
   | s = STRING

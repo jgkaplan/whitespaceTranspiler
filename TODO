@@ -1,6 +1,18 @@
 -Type checker
 -allocate constant arrays and strings on the heap and do all computations there
+-builtin functions
+-function calling conventions
+-allow main to be recursive with program still exiting successfully
+-make all functions return things
+-add support for preprocessor
+
+loops
+do while
 
 order:
     1) main, print, integers
         example: function main(){print(5); print(8);}
+
+there might be some trouble with assigning in assignment expressions
+for example,
+x := (y := 2) + y

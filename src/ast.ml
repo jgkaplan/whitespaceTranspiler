@@ -19,24 +19,29 @@ type binop =
   | BopGeq
   | BopEq
   | BopNeq
+  | BopAnd
+  | BopOr
+  | BopXor
 
 type expr =
-  | EInteger of string | EBool of bool | EChar of char
+  | EInteger of bool * string | EBool of bool | EChar of char
   | EString of string
   (* | EArray of id *)
   | EVar of id
   (* | EArrayAccess of expr * expr *)
   | EUop of unop * expr
+  | EBop of expr * binop * expr
   | EApp of id * expr list
   | EAssign of id * expr
 
 type statement =
   | SLoop of expr * statements
   | SExpr of expr
-  | SIf of expr * statement
-  | SIfElse of expr * statement * statement
+  | SIf of expr * statements
+  | SIfElse of expr * statements * statements
   | SReturn of expr
-  | SPrint of expr
+  | SPrintC of expr
+  | SPrintI of expr
 
 and statements = statement list
 
@@ -44,7 +49,7 @@ type ffunction = id * id list * statements
 
 type program = ffunction list
 
-let print_uop u = match u with
+(* let print_uop u = match u with
   | UopMinus -> print_string "-"
   | UopNot -> print_string "!"
 
@@ -64,7 +69,7 @@ let rec print_statement =
   | SLoop (e, s) -> print_ts "loop "; print_expr e; print_endline "{"; incr tabcount; List.iter print_statement s; decr tabcount; print_ts "}\n"
   | SExpr e -> repeat !tabcount; print_expr e; print_endline ";"
   | SFunction (id, args, s) -> print_ts (id^"("); List.iter (fun arg -> print_string (arg^",")) args; print_endline ") {";
-      incr tabcount; List.iter print_statement s; decr tabcount; print_ts "}\n"
+      incr tabcount; List.iter print_statement s; decr tabcount; print_ts "}\n" *)
   (* module StringMap = Map.Make(String)
   (* [EInteger s] represents and integer. s is a string representation of the magnitude of the integer
    *)

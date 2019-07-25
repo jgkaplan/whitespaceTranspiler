@@ -26,6 +26,10 @@ statements vs expressions?
 arrays
 functions
 entry point: main()
+all functions return a value or 0 (to simplify, we just don't allow void functions)
+
+heap 0 is stack pointer
+when calling a function, the caller grabs the stack pointer, updates the stack pointer, and saves the new one
 
 
 builtins:

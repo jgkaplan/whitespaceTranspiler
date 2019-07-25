@@ -69,7 +69,9 @@ let char_for_octal_code lexbuf i =
 let char_for_hexadecimal_code lexbuf i =
   let byte = hex_num_value lexbuf ~first:i ~last:(i+1) in
   Char.chr byte
-
+  (* | "'" newline "'"
+    { update_loc lexbuf None 1 false 1;
+      CHAR (Lexing.lexeme_char lexbuf 1) } *)
 }
 
 (******************************************************************)
@@ -100,11 +102,10 @@ let int_literal =
           { token lexbuf }
     | ['\n']
           { new_line lexbuf; token lexbuf }
+    | "//" { singlelinecomment lexbuf; token lexbuf }
     | int_literal
           { INT (Lexing.lexeme lexbuf) }
-    | "'" newline "'"
-      { update_loc lexbuf None 1 false 1;
-        CHAR (Lexing.lexeme_char lexbuf 1) }
+
     | "'" [^ '\\' '\'' '\010' '\013'] "'"
       { CHAR(Lexing.lexeme_char lexbuf 1) }
     | "'\\" ['\\' '\'' '"' 'n' 't' 'b' 'r' ' '] "'"
@@ -131,6 +132,8 @@ let int_literal =
           { AND }
     | "||"
           { OR }
+    | "^"
+          { XOR }
     | "+"
           { PLUS }
     | "-"
@@ -177,8 +180,10 @@ let int_literal =
           { LOOP }
     | "return"
           { RETURN }
-    | "print"
-          { PRINT }
+    | "print_char"
+          { PRINTC }
+    | "print_int"
+          { PRINTI }
     | "{"
           { LBRACE }
     | "}"
@@ -199,6 +204,11 @@ let int_literal =
           { raise Error (* to prevent expressions like [--1] *) }
     | _
           { raise Error }
+
+  and singlelinecomment = parse
+    | eof { raise Error }
+    | newline { new_line lexbuf }
+    | _ { singlelinecomment lexbuf }
 
   and comment = parse
     | "/*"

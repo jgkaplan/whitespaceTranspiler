@@ -1,3 +1,9 @@
 function main(){
-    print(5);
+    print_int 5;
+    print_char '\n';
+    print_int 42;
+    print_char '\n';
+    print_int -4242564;
+    print_char '\n';
+    print_int 5 + 5;
 }
