@@ -1,0 +1,33 @@
+function main(){
+    print_int true;
+    print_int false;
+    if(true){
+        print_int 1;
+    }
+    if(false){
+        print_int -1;
+    }else{
+        print_int 2;
+    }
+    if(4 > 2){
+        print_int 3;
+    }else{
+        print_int -1;
+    }
+    print_int 4 >= 2;
+    print_int 2 >= 2;
+    print_int 2 == 2;
+    print_int 1 != 0;
+    print_int 0 < 2;
+    print_int 0 <= 2;
+    print_int 0 <= 0;
+    x := -1;
+    if(true){
+        x := 6;
+        y := 5;
+    }else{
+        x := 7;
+        y := 5;
+    }
+    print_int x;
+}
