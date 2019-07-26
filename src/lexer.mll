@@ -178,6 +178,8 @@ let int_literal =
           { DO }
     | "loop"
           { LOOP }
+    | "break"
+          { BREAK }
     | "return"
           { RETURN }
     | "print_char"

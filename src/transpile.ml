@@ -4,6 +4,7 @@ open WhitespaceAst
 
 exception UnboundVariable of id
 exception UndefinedFunction of id
+exception InvalidBreak
 
 (* 5; should push 5 to the stack and then pop it. Or just not execute at all *)
 (* Update: should probably execute, because fname(); is also a valid expression *)
@@ -132,7 +133,7 @@ let rec compile_expression functionMap varmap = function
     end
 
 
-let rec compile_statement functionMap varmap = function
+let rec compile_statement functionMap varmap breakLabel = function
   | SExpr e -> (compile_expression functionMap varmap e) @ [Stack Discard]
   | SPrintC e -> (compile_expression functionMap varmap e) @ [IO OutputC]
   | SPrintI e -> (compile_expression functionMap varmap e) @ [IO OutputI]
@@ -142,29 +143,37 @@ let rec compile_statement functionMap varmap = function
     @ [Flow Return]
   | SIf (e, s) -> begin
       let l = next_label ()
-      in (compile_expression functionMap varmap e) @ [Flow (JumpZero l)] @ (compile_statements functionMap varmap s) @ [Flow (Mark l)]
+      in (compile_expression functionMap varmap e) @ [Flow (JumpZero l)] @ (compile_statements functionMap varmap breakLabel s) @ [Flow (Mark l)]
     end
   | SIfElse (e, s1, s2) -> begin
       let l = next_label ()
       in let l1 = next_label ()
       in (compile_expression functionMap varmap e)
          @ [Flow (JumpZero l)]
-         @ (compile_statements functionMap varmap s1)
+         @ (compile_statements functionMap varmap breakLabel s1)
          @ [Flow (Jump l1); Flow (Mark l)]
-         @ (compile_statements functionMap varmap s2)
+         @ (compile_statements functionMap varmap breakLabel s2)
          @ [Flow (Mark l1)]
     end
-  | SLoop (e, s) -> failwith "unimplemented"
-    (* begin
-      let l = next_label ()
-      in (compile_expression functionMap varmap e) @ compile_statements (* TODO *)
-    end *)
+  | SBreak -> begin
+      match breakLabel with
+      | None -> raise InvalidBreak
+      | Some l -> [Flow (Jump l)]
+    end
+  | SLoop (e, s) -> begin
+      let l_loop = next_label ()
+      in let l_end = next_label ()
+      in (compile_expression functionMap varmap e)
+         @ [Flow (Mark l_loop); Stack Duplicate; Flow (JumpZero l_end)]
+         @ compile_statements functionMap varmap (Some l_end) s (* TODO *)
+         @ [Stack (Push (false, "1")); Arithmetic Sub; Flow (Jump l_loop); Flow (Mark l_end); Stack Discard]
+    end
 
 
-and compile_statements functionMap oldVarmap statements =
+and compile_statements functionMap oldVarmap breakLabel statements =
   let varmap = ref (!oldVarmap)
   in List.fold_left (fun acc s ->
-      acc @ (compile_statement functionMap varmap s)
+      acc @ (compile_statement functionMap varmap breakLabel s)
     ) [] statements
 
 (* TODO force functions to return a value *)
@@ -177,7 +186,7 @@ let compile_function functionMap (name, args, statements) =
   in let returnFix = match List.rev statements with
       | SReturn _ :: _ -> statements
       | xs -> List.rev (SReturn (EInteger (false, "0")) :: xs)
-  in let compiled_s = compile_statements functionMap varmap returnFix
+  in let compiled_s = compile_statements functionMap varmap None returnFix
   in (Flow (Mark label))
      :: List.flatten ((List.map
            (fun arg ->

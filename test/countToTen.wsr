@@ -1,7 +1,15 @@
 function main(){
-    x = 0;
+    x := 0;
     loop 10 {
-        x = x + 1;
-        print(x);
+        x := x + 1;
+        //if(x == 4){
+        //    break;
+        //}
+        print_int x;
     }
+    print_char '\n';
+    print_char 'd';
+    print_char 'o';
+    print_char 'n';
+    print_char 'e';
 }

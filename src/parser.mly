@@ -105,6 +105,7 @@ statements:
 
 statement:
     | e = expr; SEMI; { SExpr e }
+    | BREAK; SEMI; { SBreak }
     | LOOP; e = expr; LBRACE; s = statements; RBRACE { SLoop (e, s) }
     | RETURN; e = expr; SEMI; { SReturn e }
     | PRINTC; e = expr; SEMI; { SPrintC e }

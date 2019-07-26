@@ -42,6 +42,7 @@ type statement =
   | SReturn of expr
   | SPrintC of expr
   | SPrintI of expr
+  | SBreak
 
 and statements = statement list
 
