@@ -2,6 +2,8 @@
 
 WSC is a transpiler from a readable programming language to the esoteric language [Whitespace](https://esolangs.org/wiki/Whitespace). Built with OCaml.
 
+NOTE: This does not run whitespace programs; it generates them.
+
 ## Installation
 
 Install [OCaml](http://ocaml.org/) and opam.
