@@ -1,8 +1,174 @@
-# Whitespace Transpiler
-Transpile from a simple language to whitespace
+# White Space Compiler
 
-NOT CURRENTLY FUNCTIONAL. WORK IN PROGRESS
+WSC is a transpiler from a readable programming language to the esoteric language [Whitespace](https://esolangs.org/wiki/Whitespace). Built with OCaml.
 
-requires ocaml and menhir
+## Installation
 
+Install [OCaml](http://ocaml.org/) and opam.
+Install Menhir with
+```bash
 opam install menhir
+```
+
+Build the project with make.
+```bash
+cd <installDirectory>
+make
+```
+
+## Usage
+
+```bash
+./main.byte <inputFile.wsr>
+```
+This will output a whitespace file with a `.ws` extension.
+
+## Readable Whitespace Language Spec
+A .wsr file must contain a `main` function that has no parameters.
+
+### Functions
+#### Define a function
+```
+function fname(arg1, arg2){
+    <statements>
+}
+```
+
+### Statements
+A statement is one of the following:
+
+#### If
+```
+if(<expression>){
+    <statements>
+}
+```
+where expression evaluates to a boolean
+#### If-Else
+```
+if(<expression>){
+    <statements>
+}else{
+    <statements>
+}
+```
+where expression evaluates to a boolean
+#### Expression with semicolon
+```
+<expression>;
+```
+#### Break
+```
+break;
+```
+#### Loop
+```
+loop <expression> {
+    <statements>
+}
+```
+where expression evaluates to a positive integer
+
+#### Print integer
+```
+print_int <expression>;
+```
+#### Print character
+```
+print_char <expression>;
+```
+#### Return
+```
+return <expression>;
+```
+
+### Expressions
+An expression is one of the following.
+
+#### Integer literal
+Such as `42` or `0x3B` or `0o123` or `0b101101`
+
+#### Character literal
+Such as `'p'` or `' '` or `'\n'`
+
+#### Boolean literal
+`true` or `false`
+
+#### Variable
+Such as `x` or `foo` or `potato`
+
+#### Assignment
+```
+<variable> := <expression>
+```
+Example: `x := 2 * 2`
+
+#### Arithmetic
+```
+<expression> + <expression>
+<expression> - <expression>
+<expression> * <expression>
+<expression> / <expression>
+<expression> % <expression>
+-<expression>
+```
+Where all expressions evaluate to integers.
+
+#### Parentheses
+```
+(<expression>)
+```
+
+#### Boolean Logic (AND, OR, XOR)
+```
+<expression> && <expression>
+<expression> || <expression>
+<expression> ^ <expression>
+! <expression>
+```
+Where all expressions evaluate to booleans.
+
+#### Comparisons
+```
+<expression> < <expression>
+<expression> <= <expression>
+<expression> > <expression>
+<expression> >= <expression>
+<expression> == <expression>
+<expression> != <expression>
+```
+
+#### Function application
+```
+<functionName>(<expression>, <expression>, ...)
+```
+
+Example: `double(1)` or `foo()` or `factorial(5 + 5)`
+
+## Example Program
+```
+function main(){
+    print_int factorial(5);
+}
+
+function factorial(n){
+    if(n == 0){
+        return 1;
+    }
+    return n * factorial(n-1);
+}
+```
+More examples can be seen in the `test` folder.
+
+## TODO and limitiations
+- While loops
+- Strings and Arrays will be added eventually.
+- Currently, no optimizations are done by the compiler.
+
+## Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+Please make sure to test thoroughly.
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
