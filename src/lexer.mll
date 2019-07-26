@@ -186,6 +186,10 @@ let int_literal =
           { PRINTC }
     | "print_int"
           { PRINTI }
+    | "read_char"
+          { READC }
+    | "read_int"
+          { READI }
     | "{"
           { LBRACE }
     | "}"

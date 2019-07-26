@@ -1,0 +1,30 @@
+function main(){
+    printEnter();
+    print_char 'c';
+    print_char 'h';
+    print_char 'a';
+    print_char 'r';
+    print_char ':';
+    print_char ' ';
+    read_char x;
+    print_char x;
+    read_char x; //throw away newline
+    print_char '\n';
+    printEnter();
+    print_char 'i';
+    print_char 'n';
+    print_char 't';
+    print_char ':';
+    print_char ' ';
+    read_int y;
+    print_int y;
+}
+
+function printEnter(){
+    print_char 'E';
+    print_char 'n';
+    print_char 't';
+    print_char 'e';
+    print_char 'r';
+    print_char ' ';
+}

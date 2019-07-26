@@ -25,7 +25,7 @@ let has_dups lst =
        COMMA LBRACKET RBRACKET
 %token TRUE FALSE
 %token IF ELSE
-       WHILE DO LOOP BREAK RETURN PRINTC PRINTI
+       WHILE DO LOOP BREAK RETURN PRINTC PRINTI READI READC
 %token FUNCTION
 %token EOF
 
@@ -116,6 +116,10 @@ statement:
           { SWhile (e, s) }
     | DO; LBRACE; s = statements; RBRACE; WHILE; LPAREN; e = expr; RPAREN; SEMI
           { SDoWhile (s, e) }
+    | READI; v = ident; SEMI
+        { SReadInt v }
+    | READC; v = ident; SEMI
+        { SReadChar v }
 expr:
   | e = simple_expr
         { e }

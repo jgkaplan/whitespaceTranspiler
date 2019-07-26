@@ -185,6 +185,22 @@ let rec compile_statement functionMap varmap breakLabel = function
          @ (compile_expression functionMap varmap e)
          @ [Flow (JumpZero l_end); Flow (Jump l_loop); Flow (Mark l_end)]
     end
+  | SReadInt v -> begin
+      let l = begin
+        match IdMap.find_opt v !varmap with
+        | None -> let l = IdMap.cardinal !varmap + 1 in varmap := IdMap.add v (string_of_int l) !varmap; string_of_int l
+        | Some l -> l
+      end
+      in [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add; IO InputI]
+    end
+  | SReadChar v -> begin
+      let l = begin
+        match IdMap.find_opt v !varmap with
+        | None -> let l = IdMap.cardinal !varmap + 1 in varmap := IdMap.add v (string_of_int l) !varmap; string_of_int l
+        | Some l -> l
+      end
+      in [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add; IO InputC]
+    end
 
 
 and compile_statements functionMap oldVarmap breakLabel statements =

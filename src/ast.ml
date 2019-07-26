@@ -45,6 +45,8 @@ type statement =
   | SBreak
   | SWhile of expr * statements
   | SDoWhile of statements * expr
+  | SReadChar of id
+  | SReadInt of id
 
 and statements = statement list
 

@@ -95,6 +95,16 @@ print_int <expression>;
 ```
 print_char <expression>;
 ```
+#### Read integer
+```
+read_int <variable>;
+```
+Reads in an integer and saves it to the variable <variable>.
+#### Read character
+```
+read_char <variable>;
+```
+Reads in a character and saves it to the variable <variable>.
 #### Return
 ```
 return <expression>;
@@ -180,11 +190,11 @@ More examples can be seen in the `test` folder.
 
 ## TODO and limitations
 - Boolean short circuiting (and check that booleans work as intended)
-- User input
 - Builtin functions
 - Including other files (preprocessor)
 - Type checker
-- Strings and Arrays will be added eventually.
+- Strings
+- Arrays
 - Currently, no optimizations are done by the compiler.
 
 ## Contributing
