@@ -71,6 +71,22 @@ loop <expression> {
 ```
 where expression evaluates to a positive integer
 
+#### While
+```
+while(<expression>) {
+    <statements>
+}
+```
+where expression evaluates to a boolean
+
+#### Do-While
+```
+do {
+    <statements>
+} while(<expression>);
+```
+where expression evaluates to a boolean
+
 #### Print integer
 ```
 print_int <expression>;
@@ -162,8 +178,7 @@ function factorial(n){
 ```
 More examples can be seen in the `test` folder.
 
-## TODO and limitiations
-- While loops
+## TODO and limitations
 - Strings and Arrays will be added eventually.
 - Currently, no optimizations are done by the compiler.
 

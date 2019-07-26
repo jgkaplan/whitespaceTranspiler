@@ -1,0 +1,30 @@
+function main(){
+    x := 10;
+    while(x > 0){
+        print_int x;
+        x := x - 1;
+    }
+    print_char '\n';
+    while(false){
+        print_int 9;
+    }
+    //while(true){
+    //    print_int 0;
+    //}
+    y := 5;
+    do {
+        print_int y;
+        y := y - 1;
+    } while(y > 0);
+    print_int y;
+
+    print_char '\n';
+
+    z := 5;
+    do {
+        print_int z;
+        z := z - 1;
+    } while ( z > 5 );
+
+    print_int z;
+}

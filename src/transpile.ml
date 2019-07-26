@@ -43,11 +43,11 @@ let rec compile_expression functionMap varmap = function
   | EAssign (id, e) -> begin
       let ce = compile_expression functionMap varmap e
       in let l =
-        begin
-          match IdMap.find_opt id !varmap with
-          | None -> let l = IdMap.cardinal !varmap + 1 in varmap := IdMap.add id (string_of_int l) !varmap; string_of_int l (* Add it *)
-          | Some l -> l (* update it *)
-        end
+           begin
+             match IdMap.find_opt id !varmap with
+             | None -> let l = IdMap.cardinal !varmap + 1 in varmap := IdMap.add id (string_of_int l) !varmap; string_of_int l (* Add it *)
+             | Some l -> l (* update it *)
+           end
       in
       ce
       @ [Stack Duplicate; Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, l)); Arithmetic Add]
@@ -59,9 +59,9 @@ let rec compile_expression functionMap varmap = function
       | Some l ->
         let ces = es |> List.map (compile_expression functionMap varmap) |> List.flatten
         in ces @ [Stack (Push (false, "0")); Stack Duplicate; Heap Retrieve]
-        @ [Stack (Push (false, !varmap |> IdMap.cardinal |> (+) 1 |> string_of_int ))]
-        @ [Arithmetic Add; Stack Duplicate; Stack (Copy "2"); Heap Retrieve; Heap Store; Heap Store]
-        @ [Flow (Call l)]
+           @ [Stack (Push (false, !varmap |> IdMap.cardinal |> (+) 1 |> string_of_int ))]
+           @ [Arithmetic Add; Stack Duplicate; Stack (Copy "2"); Heap Retrieve; Heap Store; Heap Store]
+           @ [Flow (Call l)]
     end
   | EBop (e1, b, e2) -> begin
       match b with
@@ -165,8 +165,25 @@ let rec compile_statement functionMap varmap breakLabel = function
       in let l_end = next_label ()
       in (compile_expression functionMap varmap e)
          @ [Flow (Mark l_loop); Stack Duplicate; Flow (JumpZero l_end)]
-         @ compile_statements functionMap varmap (Some l_end) s (* TODO *)
+         @ compile_statements functionMap varmap (Some l_end) s
          @ [Stack (Push (false, "1")); Arithmetic Sub; Flow (Jump l_loop); Flow (Mark l_end); Stack Discard]
+    end
+  | SWhile (e, s) -> begin
+      let l_loop = next_label ()
+      in let l_end = next_label ()
+      in [Flow (Mark l_loop)]
+         @ (compile_expression functionMap varmap e)
+         @ [Flow (JumpZero l_end)]
+         @ compile_statements functionMap varmap (Some l_end) s
+         @ [Flow (Jump l_loop); Flow (Mark l_end)]
+    end
+  | SDoWhile (s, e) -> begin
+      let l_loop = next_label ()
+      in let l_end = next_label ()
+      in [Flow (Mark l_loop)]
+         @ compile_statements functionMap varmap (Some l_end) s
+         @ (compile_expression functionMap varmap e)
+         @ [Flow (JumpZero l_end); Flow (Jump l_loop); Flow (Mark l_end)]
     end
 
 
@@ -189,10 +206,10 @@ let compile_function functionMap (name, args, statements) =
   in let compiled_s = compile_statements functionMap varmap None returnFix
   in (Flow (Mark label))
      :: List.flatten ((List.map
-           (fun arg ->
-              [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, IdMap.find arg !varmap)); Arithmetic Add; Stack Swap; Heap Store]
-           ) (List.rev args)
-        ))
+                         (fun arg ->
+                            [Stack (Push (false, "0")); Heap Retrieve; Stack (Push (false, IdMap.find arg !varmap)); Arithmetic Add; Stack Swap; Heap Store]
+                         ) (List.rev args)
+                      ))
      @ compiled_s
 
 
@@ -201,13 +218,13 @@ let compile_program fs =
   let functionMap = List.fold_left
       (fun acc (name, _, _) ->
          IdMap.add name (if name = "main" then "0" else next_label ()) acc) IdMap.empty fs
-in let compiled = List.map (compile_function functionMap) fs
-in Stack (Push (false, "0"))
-   :: Stack (Push (false, "1"))
-   :: Stack Duplicate
-   :: Stack Duplicate
-   :: Heap Store
-   :: Heap Store
-   :: (Flow (Call "0"))
-   :: (Flow Terminate)
-   :: (List.flatten compiled)
+  in let compiled = List.map (compile_function functionMap) fs
+  in Stack (Push (false, "0"))
+     :: Stack (Push (false, "1"))
+     :: Stack Duplicate
+     :: Stack Duplicate
+     :: Heap Store
+     :: Heap Store
+     :: (Flow (Call "0"))
+     :: (Flow Terminate)
+     :: (List.flatten compiled)

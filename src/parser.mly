@@ -112,7 +112,10 @@ statement:
     | PRINTI; e = expr; SEMI; { SPrintI e }
     | IF; LPAREN; e = expr; RPAREN; LBRACE; s = statements; RBRACE { SIf (e, s) }
     | IF; LPAREN; e = expr; RPAREN; LBRACE; s1 = statements; RBRACE; ELSE; LBRACE; s2 = statements; RBRACE { SIfElse (e, s1, s2) }
-
+    | WHILE; LPAREN; e = expr; RPAREN; LBRACE; s = statements; RBRACE
+          { SWhile (e, s) }
+    | DO; LBRACE; s = statements; RBRACE; WHILE; LPAREN; e = expr; RPAREN; SEMI
+          { SDoWhile (s, e) }
 expr:
   | e = simple_expr
         { e }

@@ -43,6 +43,8 @@ type statement =
   | SPrintC of expr
   | SPrintI of expr
   | SBreak
+  | SWhile of expr * statements
+  | SDoWhile of statements * expr
 
 and statements = statement list
 
