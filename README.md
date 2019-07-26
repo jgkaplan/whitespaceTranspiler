@@ -179,6 +179,7 @@ function factorial(n){
 More examples can be seen in the `test` folder.
 
 ## TODO and limitations
+- Boolean short circuiting (and check that booleans work as intended)
 - User input
 - Builtin functions
 - Including other files (preprocessor)
