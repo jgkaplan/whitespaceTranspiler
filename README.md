@@ -179,6 +179,10 @@ function factorial(n){
 More examples can be seen in the `test` folder.
 
 ## TODO and limitations
+- User input
+- Builtin functions
+- Including other files (preprocessor)
+- Type checker
 - Strings and Arrays will be added eventually.
 - Currently, no optimizations are done by the compiler.
 
