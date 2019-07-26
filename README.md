@@ -24,7 +24,7 @@ make
 This will output a whitespace file with a `.ws` extension.
 
 ## Readable Whitespace Language Spec
-A .wsr file must contain a `main` function that has no parameters.
+A .wsr file must contain a `main` function that has no parameters. This is the entry point and where code execution will start.
 
 ### Functions
 #### Define a function
