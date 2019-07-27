@@ -195,6 +195,7 @@ More examples can be seen in the `test` folder.
 - Type checker
 - Strings
 - Arrays
+- Structs / custom objects (to allow for fractions)
 - Currently, no optimizations are done by the compiler.
 
 ## Contributing

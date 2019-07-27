@@ -1,0 +1,25 @@
+function abs(x){
+    if(x < 0){
+        return -x;
+    }
+    return x;
+}
+
+function square(x){
+    return x * x;
+}
+
+// a ^ b
+/*
+ * Requires: b >= 0
+ * Returns: a ^ b (a to the power of b)
+ */
+function pow(a, b){
+    x := 1;
+    loop b {
+        x := x * a;
+    }
+    return x;
+}
+
+function
